@@ -18,6 +18,13 @@
 <title>CS 184 Final Project Proposal</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+  MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
 </head>
 
 <body>
@@ -29,9 +36,51 @@
 
 <div>
 
-<h2 align="left">Title</h2>
+<h2 align="left">Abstract</h2>
 <p>
-Text
+In our project we implement fluid simulation by modeling fluids as particles as described in <a href="http://mmacklin.com/pbf_sig_preprint.pdf">Position Based Fluids</a> (Macklin and Müller). This simulation method uses Position Based Dynamics and is based on Smoothed Particle Hydrodynamics (SPH). The big improvement that this method makes over traditional SPH is the ability to efficiently enforce incompressiblity, or constant fluid density. It adds an artificial pressure term to deal with negative pressures and create a surface tension effect. It also includes vorticity confinement to counteract damping, and XSPH viscosity for more coherent motion. The density calculations as well as particle collisions require us to find neighbors of particles, which we are able to compute efficiently using a grid structure.
+</p>
+
+<h2 align="left">Overall Loop</h2>
+<p>
+Our overall simulation loop follows the structure given in Macklin and Müller. This loop can be roughly divided into the following steps: 
+  <ol>
+    <li> Apply forces and predict new particle positions </li>
+    <li> Form the particle grid and find neighbors </li>
+    <li> Repeat for <i>n</i> iterations:
+      <ul>
+        <li> Apply incompressiblity constraints and artificial pressure </li>
+        <li> Calculate particle collisions and environment collisions </li>
+      </ul>
+    </li>
+    <li> Update velocity and position and apply vorticity confinement and viscosity </li>
+  </ol> 
+</p>
+
+<h2 align="left">Applying forces</h2>
+<p>
+For each particle, we calculate the change in velocity due to forces, and predict the change in position due to velocity. We use two simple physics equations: 
+$$ v_t = v_{t-1} + a{\Delta}t$$
+$$ x_t = x_{t-1} + v{\Delta}t$$
+</p>
+
+<h2 align="left">Finding neighbors</h2>
+<p>
+We use a grid-based method to find neighbors. The simulation space is divided into boxes of width <i>w</i> equal to the diameter of a particle. The box a particle is located in is given by the equation:
+$$ p_{box} = floor(\frac{p_{particle}}{w}) $$ 
+We form a unique hash from the coordinates of the box and store the particle in a map keyed at that hash. 
+</p>
+<div align="middle">
+<img src="images/grid.png" width="600px"/>
+<figcaption>Illustration of particles in a grid. Image from <i>Particle Simulation using CUDA</i> (Simon Green)</figcaption>
+</div>
+<p>
+This grid structure greatly reduces the number of particles we need to consider when forming the set of neighbors. For example, for particle collisions we only need to consider the particles located up to one box away. Thus, we would need to iterate over 27 boxes ([-1, 1] in each dimension).
+</p> 
+
+<h2 align="left">Collisions</h2>
+<p>
+
 </p>
 
 
