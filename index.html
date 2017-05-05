@@ -143,14 +143,88 @@ $$ \nabla W_{spiky}(\pmb{\textrm{r}}, h) = -\frac{45}{\pi h^6}(h-{\lvert \pmb{\t
   <figcaption>Spiky kernel and its gradient shown by the thick and thin lines, respectively. Image from Müller et al.</figcaption>
 </figure>
 
-Our final equation for the correction vector \(\Delta \pmb{\textrm{p}}\) is
+After calculating \(\lambda_i\), we get that the correction vector \(\Delta \pmb{\textrm{p}}\) is
 $$ \Delta \pmb{\textrm{p}}_i = \frac{1}{\rho_0} \sum_j(\lambda_i + \lambda_j) \nabla W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h). $$
 
 </p>
 
+<figure align="middle">
+  <img src="gifs/no_vis_no_scorr.gif" width="480px"/>
+  <figcaption>Fluid with incompressibility</figcaption>
+</figure>
+
+<h2 align="left">Tensile Instability</h2>
+<p>
+One problem with the incompressiblity equations above is that they can cause clumping. When a particle does not have enough neighbors to satisfy the rest density, they will all clump together in an attempt to increase the density. Thus, <i>SPH without a Tensile Instability</i> (Monaghan) adds an artificial pressure term 
+
+$$ s_{corr} = -k\bigg(\frac{W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h)}{W(\Delta \pmb{\textrm{q}}, h)} \bigg)^n$$
+
+where \(\Delta \pmb{\textrm{q}}\) is some fixed distance within the radius of the smoothing kernel. We played around with parameters and eventually ended with \(k = .001\), \(\lvert \Delta \pmb{\textrm{q}}\rvert = .01h\), and \(n = 4\). Incorporating this term into our \(\Delta \pmb{\textrm{p}}\), our final result is
+
+$$ \Delta \pmb{\textrm{p}}_i = \frac{1}{\rho_0} \sum_j(\lambda_i + \lambda_j + s_{corr}) \nabla W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h). $$
+
+In addition to fixing clumping, the artificial pressure also creates a surface tension effect. It causes particle density to be slightly lower than the rest density, which makes particles pull each other closer.
+
+</p>
+
+<figure align="middle">
+  <img src="gifs/no_vis_with_scorr.gif" width="480px"/>
+  <figcaption>Fluid with artificial pressure</figcaption>
+</figure>
+
+<h2 align="left">Vorticity Confinement and Viscosity</h2>
+<p>
+Position based dynamics naturally causes damping, and vorticity confinement is a method of adding back in velocity to counteract that damping. Vorticity is related to the rotational energy of the fluid, and can be estimated with the equation
+$$ \omega_i = \nabla \times \pmb{\textrm{v}} = \sum_j (\pmb{\textrm{v}}_j - \pmb{\textrm{v}}_i) \times \nabla_{\pmb{\textrm{p}}_j}W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h)$$
+We can then apply a corrective force 
+
+$$ \pmb{\textrm{f}}_i^{vorticity} = \varepsilon\Bigg(\frac{\nabla\lvert\omega_i\rvert}{\lvert\nabla\lvert\omega_i\rvert\rvert} \times \omega_i\Bigg)$$
+
+However, in our project we were unable to implement vorticity confinement correctly. We were unsure of how to calculate the gradient of the magnitude of vorticity, so our final results do not use vorticity confinement at all.
+<br> <br>
+On the other hand, we did include viscosity. Essentially, the velocity of each particle is slightly shifted towards the velocities of its neighbors, creating a more coherent and cohesive motion. The equation for viscosity is
+
+$$ \pmb{\textrm{v}}_i^{new} = \pmb{\textrm{v}}_i + c \sum_j (\pmb{\textrm{v}}_j - \pmb{\textrm{v}}_i) * W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h)$$
+
+We tested a wide range of values for \(c\), from 0.01 to 0.0001.
+
+<table style="width:100%">
+  <tr>
+    <td>
+      <img src="gifs/high_vis.gif" width="480px"/>
+      <figcaption align="middle">\(c = .01\)</figcaption>
+    </td>
+    <td>
+      <img src="gifs/low_vis.gif" width="480px"/>
+      <figcaption align="middle">\(c = .0005\)</figcaption>
+    </td>
+  </tr>
+</table>
+
+
+</p>
+
+<h2 align="left">Final Result</h2>
+<figure align="middle">
+  <img src="gifs/4500_particles.gif" width="480px"/>
+  <figcaption>A full simulation with 4500 particles</figcaption>
+</figure>
+
+<h2 align="left">References</h2>
+<ul>
+  <li>Macklin, Miles, and Matthias Müller. "Position based fluids." ACM Transactions on Graphics (TOG) 32.4 (2013): 104.</li>
+  <li>Müller, Matthias, David Charypar, and Markus Gross. "Particle-based fluid simulation for interactive applications." Proceedings of the 2003 ACM SIGGRAPH/Eurographics symposium on Computer animation. Eurographics Association, 2003.</li>
+  <li>Green, Simon. "Particle Simulation using CUDA." (2012).</li>
+  <li>Monaghan, Joseph J. "SPH without a tensile instability." Journal of Computational Physics 159.2 (2000): 290-311.</li>
+</ul>
+
+
 <h2 align="left">Video</h2>
 <div align="middle">
 <iframe width="640" height="360" src="https://www.youtube.com/embed/tLOKEaRWL-o" frameborder="0" allowfullscreen></iframe>
+
+<h2 align="left">Team Member Contributions</h2>
+
 </div>
 
 </div>
