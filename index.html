@@ -80,7 +80,7 @@ This grid structure greatly reduces the number of particles we need to consider 
 
 <h2 align="left">Collisions</h2>
 <p>
-For each particle, we test for collisions with its neighboring particles and with the environment. If a particle's predicted location is within \(2*radius\) of a neighbor, we simply move it along the vector connecting the two particles so that it is no longer overlapping with the neighbor. We also check to see if the predicted position is on the opposite side of wall from its initial position. If so, we shorten the distance that the particle travels so that it no longer crosses the wall.
+For each particle, we test for collisions with its neighboring particles and with the environment. If a particle's predicted location is within \(2*radius\) of a neighbor, we simply move it along the vector connecting the two particles so that it is no longer overlapping with the neighbor. We also check to see if the predicted position is on the opposite side of wall from its initial position. If so, we shorten the distance that the particle travels so that it no longer crosses the wall. We additionally scale this distance traveled by a friction parameter, i.e. we multiplied by \((1 - friction)\).
 <br> <br>
 Note: while we implemented collisions first, they are calculated after all other changes to particle positions.
 </p>
@@ -210,6 +210,19 @@ We tested a wide range of values for \(c\), from 0.01 to 0.0001.
   <figcaption>A full simulation with 4500 particles</figcaption>
 </figure>
 
+<h2 align="left">Problems Encountered</h2>
+<p>
+Besides our failed attempt at implementing vorticity confinement, we faced a variety of problems. This project required a lot of debugging and tinkering with parameters. One common problem we faced early on was particles leaving the box because of NaN positions. Additionally, particles would very easily blow up and bounce all over the box due to a variety of issues. It took very careful adjusting of paramaters to produce good results. Even in our final simulation, there are 2 particles that pop out and bounce around the walls. Another problem we faced is that the particles as a group had a tendency to shift slightly in one direction. This is caused by the shifts in position due to incompressibility. Because we always iterate through the particles in a constant order, all of the particles on one side will shift slightly, and then their neighbors will move, and so on, leading to a shift in the entire fluid. We decided that this problem was relatively minor and did not bother trying to fix it.
+</p>
+
+<h2 align="left">What We Learned</h2>
+We learned a lot from this project, including:
+<ul>
+  <li>Kernels: We learned about the purpose of kernels and some of the logic behind their designs. For example, the spiky kernel was created to address the downsides of the poly6 kernel.</li>
+  <li>Fluids: We learned a lot about fluids and some of the main concerns in making a realistic fluid simulation, such as incompressibility tensile instability.</li>
+  <li>Fluid simulation is very difficult, even with all the math laid out. We spent a large portion of our time debugging and tweaking paramaters to make the fluid look right. Initially we wanted to finish the simulation early and implement realistic fluid surfaces, but the particle simulation ended up taking all of our time.</li>
+</ul>
+
 <h2 align="left">References</h2>
 <ul>
   <li>Macklin, Miles, and Matthias Müller. "Position based fluids." ACM Transactions on Graphics (TOG) 32.4 (2013): 104.</li>
@@ -222,10 +235,15 @@ We tested a wide range of values for \(c\), from 0.01 to 0.0001.
 <h2 align="left">Video</h2>
 <div align="middle">
 <iframe width="640" height="360" src="https://www.youtube.com/embed/tLOKEaRWL-o" frameborder="0" allowfullscreen></iframe>
+</div>
 
 <h2 align="left">Team Member Contributions</h2>
+<p >
+  Hubert Jung worked primarily on implementing collisions and the grid structure for efficiently finding neighbors. He also helped debug and fix some of the math for incompressibility. Hubert wrote the final website report and created the simulation gifs.
+  <br> <br>
+  Akshay Madhani worked primarily on incompressibility, tensile instability, and viscosity. He also experimented with a variety of paramaters to fix problems with particles exploding outwards. Akshay put together the presentation slides and video.
+</p>
 
-</div>
 
 </div>
 </body>
