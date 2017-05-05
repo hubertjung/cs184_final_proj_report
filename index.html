@@ -20,10 +20,10 @@
 <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-  MathJax.Hub.Config({
-    jax: ["input/TeX","output/HTML-CSS"],
-    displayAlign: "left"
-});
+//   MathJax.Hub.Config({
+//     jax: ["input/TeX","output/HTML-CSS"],
+//     displayAlign: "left"
+// });
 </script>
 </head>
 
@@ -81,6 +81,8 @@ This grid structure greatly reduces the number of particles we need to consider 
 <h2 align="left">Collisions</h2>
 <p>
 For each particle, we test for collisions with its neighboring particles and with the environment. If a particle's predicted location is within \(2*radius\) of a neighbor, we simply move it along the vector connecting the two particles so that it is no longer overlapping with the neighbor. We also check to see if the predicted position is on the opposite side of wall from its initial position. If so, we shorten the distance that the particle travels so that it no longer crosses the wall.
+<br> <br>
+Note: while we implemented collisions first, they are calculated after all other changes to particle positions.
 </p>
 <table style="width:100%">
   <tr>
@@ -95,6 +97,7 @@ For each particle, we test for collisions with its neighboring particles and wit
   </tr>
 </table>
 
+
 <h2 align="left">Incompressibility</h2>
 <p>
 In order to maximize realism, we want to enforce incompressibility. Another way of saying this is that we want the density \(\rho_i\) at each point in the fluid to be equal to a constant rest density \(\rho_o\). This is captured mathematically with the constraint
@@ -105,7 +108,43 @@ where \(\pmb{\textrm{p}}_1,...,\pmb{\textrm{p}}_n\) represents the set of the pa
 
 $$ \rho_i = \sum_j m_jW(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h)$$
 
-W(<b>r</b>, h) is a smoothing kernel that is only non-zero when \(0 \leq \lvert{\pmb{r}}\rvert \leq h\). Following 
+W(<b>r</b>, h) is a smoothing kernel that is only non-zero when \(0 \leq \lvert{\pmb{r}}\rvert \leq h\). Following <a href="http://matthias-mueller-fischer.ch/publications/sca03.pdf"> this paper</a> (Müller et al.), we use the Poly6 kernel for density and the Spiky kernel for the gradient.
+
+$$ W_{poly6}(\pmb{\textrm{r}}, h) = \frac{315}{64\pi h^9}(h^2-{\lvert \pmb{\textrm{r}} \rvert}^2)^3 \quad 0 \leq {\lvert \pmb{\textrm{r}} \rvert} \leq h$$
+
+<figure align="middle">
+  <img src="images/poly.png" width="200px"/>
+  <figcaption>Poly6 kernel and its gradient shown by the thick and thin lines, respectively. Image from Müller et al.</figcaption>
+</figure>
+
+Our goal in this step is to find a correction vector \(\Delta \pmb{\textrm{p}}\) that can be applied to the position to satisfy the constraint.
+
+$$ C(\pmb{\textrm{p}} + \Delta \pmb{\textrm{p}}) = 0$$
+
+We use Newton's method, stepping along the gradient of the constraint.
+
+$$ \Delta \pmb{\textrm{p}} \approx \nabla C(\pmb{\textrm{p}}) \lambda $$
+$$ C(\pmb{\textrm{p}} + \Delta \pmb{\textrm{p}}) \approx C(\pmb{\textrm{p}}) + \nabla C^T \Delta \pmb{\textrm{p}} = 0 $$
+
+Plugging the first equation into the second and solving for lambda yields:
+
+$$ \lambda_i = -\frac{C_i(\pmb{\textrm{p}}_1,...,\pmb{\textrm{p}}_n)}{\sum_k \lvert \nabla_{p_k} C_i \rvert^2 + \varepsilon}$$
+
+where \(\varepsilon\) is an adjustable regularization paramater. The gradient of the constraint is given by
+$$\nabla_{p_k} C_i = \frac{1}{\rho_o} \sum_j \nabla_{p_k} W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h) $$
+
+You can see from the figure above that the gradient of the Poly6 kernel approaches 0 as r becomes smaller. This would lead to clumping as particles close together would have a very small gradient value. Thus, we instead use the gradient of the Spiky kernel:
+
+$$ W_{spiky}(\pmb{\textrm{r}}, h) = \frac{15}{\pi h^6}(h-{\lvert \pmb{\textrm{r}} \rvert})^3 \quad 0 \leq {\lvert \pmb{\textrm{r}} \rvert} \leq h$$
+$$ \nabla W_{spiky}(\pmb{\textrm{r}}, h) = -\frac{45}{\pi h^6}(h-{\lvert \pmb{\textrm{r}} \rvert})^2\frac{\pmb{\textrm{r}}}{{\lvert \pmb{\textrm{r}} \rvert}} \quad 0 < {\lvert \pmb{\textrm{r}} \rvert} \leq h$$
+
+<figure align="middle">
+  <img src="images/spiky.png" width="200px"/>
+  <figcaption>Spiky kernel and its gradient shown by the thick and thin lines, respectively. Image from Müller et al.</figcaption>
+</figure>
+
+Our final equation for the correction vector \(\Delta \pmb{\textrm{p}}\) is
+$$ \Delta \pmb{\textrm{p}}_i = \frac{1}{\rho_0} \sum_j(\lambda_i + \lambda_j) \nabla W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h). $$
 
 </p>
 
