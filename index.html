@@ -80,9 +80,39 @@ This grid structure greatly reduces the number of particles we need to consider 
 
 <h2 align="left">Collisions</h2>
 <p>
+For each particle, we test for collisions with its neighboring particles and with the environment. If a particle's predicted location is within \(2*radius\) of a neighbor, we simply move it along the vector connecting the two particles so that it is no longer overlapping with the neighbor. We also check to see if the predicted position is on the opposite side of wall from its initial position. If so, we shorten the distance that the particle travels so that it no longer crosses the wall.
+</p>
+<table style="width:100%">
+  <tr>
+    <td>
+      <img src="gifs/basic.gif" width="480px"/>
+      <figcaption align="middle">Particles falling and colliding</figcaption>
+    </td>
+    <td>
+      <img src="gifs/basic_random.gif" width="480px"/>
+      <figcaption align="middle">With randomized starting positions</figcaption>
+    </td>
+  </tr>
+</table>
+
+<h2 align="left">Incompressibility</h2>
+<p>
+In order to maximize realism, we want to enforce incompressibility. Another way of saying this is that we want the density \(\rho_i\) at each point in the fluid to be equal to a constant rest density \(\rho_o\). This is captured mathematically with the constraint
+
+$$ C_i(\pmb{\textrm{p}}_1,...,\pmb{\textrm{p}}_n) = \frac{\rho_i}{\rho_0} - 1$$
+
+where \(\pmb{\textrm{p}}_1,...,\pmb{\textrm{p}}_n\) represents the set of the particle and its neighbors. We can calculate \(\rho_i\) with the standard SPH density estimator
+
+$$ \rho_i = \sum_j m_jW(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h)$$
+
+W(<b>r</b>, h) is a smoothing kernel that is only non-zero when \(0 \leq \lvert{\pmb{r}}\rvert \leq h\). Following 
 
 </p>
 
+<h2 align="left">Video</h2>
+<div align="middle">
+<iframe width="640" height="360" src="https://www.youtube.com/embed/tLOKEaRWL-o" frameborder="0" allowfullscreen></iframe>
+</div>
 
 </div>
 </body>
