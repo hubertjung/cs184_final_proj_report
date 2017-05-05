@@ -180,9 +180,10 @@ We can then apply a corrective force
 
 $$ \pmb{\textrm{f}}_i^{vorticity} = \varepsilon\Bigg(\frac{\nabla\lvert\omega_i\rvert}{\lvert\nabla\lvert\omega_i\rvert\rvert} \times \omega_i\Bigg)$$
 
-However, in our project we were unable to implement vorticity confinement correctly. We were unsure of how to calculate the gradient of the magnitude of vorticity, so our final results do not use vorticity confinement at all.
-<br> <br>
-On the other hand, we did include viscosity. Essentially, the velocity of each particle is slightly shifted towards the velocities of its neighbors, creating a more coherent and cohesive motion. The equation for viscosity is
+However, in our project we were unable to implement vorticity confinement correctly. We were unsure of how to calculate the gradient of the magnitude of vorticity, so our final results do not include vorticity confinement at all.
+<br> 
+<br>
+On the other hand, we were able to implement viscosity. Essentially, the velocity of each particle is slightly shifted towards the velocities of its neighbors, creating a more coherent and cohesive motion. The equation for viscosity is
 
 $$ \pmb{\textrm{v}}_i^{new} = \pmb{\textrm{v}}_i + c \sum_j (\pmb{\textrm{v}}_j - \pmb{\textrm{v}}_i) * W(\pmb{\textrm{p}}_i - \pmb{\textrm{p}}_j, h)$$
 
