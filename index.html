@@ -213,7 +213,7 @@ We tested a wide range of values for \(c\), from 0.01 to 0.0001.
 
 <h2 align="left">Problems Encountered</h2>
 <p>
-Besides our failed attempt at implementing vorticity confinement, we faced a variety of problems. This project required a lot of debugging and tinkering with parameters. One common problem we faced early on was particles leaving the box because of NaN positions. Additionally, particles would very easily blow up and bounce all over the box due to a variety of issues. It took very careful adjusting of paramaters to produce good results. Even in our final simulation, there are 2 particles that pop out and bounce around the walls. Another problem we faced is that the particles as a group had a tendency to shift slightly in one direction. This is caused by the shifts in position due to incompressibility. Because we always iterate through the particles in a constant order, all of the particles on one side will shift slightly, and then their neighbors will move, and so on, leading to a shift in the entire fluid. We decided that this problem was relatively minor and did not bother trying to fix it.
+Besides our failed attempt at implementing vorticity confinement, we faced a variety of problems. This project required a lot of debugging and tinkering with parameters. One common problem we faced early on was particles leaving the box because of NaN positions. Additionally, particles would very easily blow up and bounce all over the box due to a variety of issues. It took very careful adjusting of paramaters to produce good results. Even in our final simulation, there are 2 particles that pop out and bounce around the walls. Another problem we faced is that the particles as a group had a tendency to shift slightly in one direction. Because incompressibility/collision calculations are done in the order of the particle vector, and the vector goes in order from negative in the x direction (and z direction), you can see the entire column of particles shift to the left and to the front. Because we always iterate through the particles in a constant order, all of the particles on one side will shift slightly, and then their neighbors will move to match, and so on. When we first encountered the problem, we decided to move on and return to it; lucky for us, adding the artificial pressure term mostly fixed the problem.
 </p>
 
 <h2 align="left">What We Learned</h2>
@@ -243,6 +243,8 @@ We learned a lot from this project, including:
   Hubert Jung worked primarily on implementing collisions and the grid structure for efficiently finding neighbors. He also helped debug and fix some of the math for incompressibility. Hubert wrote the final website report and created the simulation gifs.
   <br> <br>
   Akshay Madhani worked primarily on incompressibility, tensile instability, and viscosity. He also experimented with a variety of paramaters to fix problems with particles exploding outwards. Akshay put together the presentation slides and video.
+  <br> <br>
+  Special thanks to Chris Correa and Brendan Tang for working with us to determine our constant values.
 </p>
 
 
